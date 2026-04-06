@@ -11,7 +11,7 @@ def _get_font(size):
     if size in _font_cache:
         return _font_cache[size]
     font = None
-    for name in ("segoeui.ttf", "arial.ttf"):
+    for name in ("segoeuib.ttf", "arialbd.ttf", "segoeui.ttf", "arial.ttf"):
         try:
             font = ImageFont.truetype(name, size)
             break
@@ -40,7 +40,7 @@ def create_temp_icon(temp_value):
         else:
             color = config.COLOR_RED
 
-    font_size = 28 if len(text) >= 3 else 38
+    font_size = 38 if len(text) >= 3 else 52
     font = _get_font(font_size)
 
     bbox = draw.textbbox((0, 0), text, font=font)
