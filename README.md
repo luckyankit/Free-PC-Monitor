@@ -29,8 +29,10 @@ Grab the latest `PCMonitor.exe` from the [Releases](../../releases) page. No ins
 
 ## Requirements
 
-- Windows 10/11
+- **Windows 10/11** (64-bit)
 - **Administrator privileges** (required for hardware sensor access)
+- **.NET Framework 4.7.2+** (pre-installed on Windows 10 version 1803 and later)
+- **[Visual C++ Redistributable 2015-2022](https://aka.ms/vs/17/release/vc_redist.x64.exe)** (most PCs have it; install if the exe fails to start)
 - If using Norton antivirus: disable "Product Tamper Protection" in Norton settings, as it blocks the kernel driver used to read CPU temperatures and fan speeds
 
 ## Usage
