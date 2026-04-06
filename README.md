@@ -33,7 +33,7 @@ Grab the latest `PCMonitor.exe` from the [Releases](../../releases) page. No ins
 - **Administrator privileges** (required for hardware sensor access)
 - **.NET Framework 4.7.2+** (pre-installed on Windows 10 version 1803 and later)
 - **[Visual C++ Redistributable 2015-2022](https://aka.ms/vs/17/release/vc_redist.x64.exe)** (most PCs have it; install if the exe fails to start)
-- If using Norton antivirus: disable "Product Tamper Protection" in Norton settings, as it blocks the kernel driver used to read CPU temperatures and fan speeds
+- If using **Norton antivirus**, see [Norton Antivirus Users](#norton-antivirus-users) below
 
 ## Usage
 
@@ -80,14 +80,29 @@ The exe will be at `dist/PCMonitor.exe`.
 
 The app uses [LibreHardwareMonitor](https://github.com/LibreHardwareMonitor/LibreHardwareMonitor)'s .NET library (loaded via [pythonnet](https://github.com/pythonnet/pythonnet)) to read hardware sensors. This requires a kernel driver for CPU MSR registers and SuperIO chip access, which is why admin privileges are needed.
 
+## Norton Antivirus Users
+
+This app uses the **WinRing0** kernel driver (via LibreHardwareMonitor) to read CPU temperatures, clock speeds, fan RPMs, and other sensor data. Norton's **"Block vulnerable kernel drivers"** setting blocks this driver, causing CPU temps, fan speeds, and motherboard sensors to show as N/A.
+
+**To fix this:**
+
+1. Open Norton → **Settings** → **Product Tamper Protection** (expand it)
+2. Turn **off** "Block vulnerable kernel drivers"
+3. Launch PC Monitor
+4. Once the app is running and showing sensor data, you can turn the setting **back ON** — the driver is already loaded and will continue working until the app is closed
+
+You only need to disable it briefly during startup. The driver stays loaded in memory once initialized.
+
+> **Why does Norton block it?** WinRing0 is on Microsoft's vulnerable driver blocklist because it provides low-level hardware access that could theoretically be exploited by malware. However, the risk is low on a personal PC — it's only exploitable if malicious software is already running as admin. HWiNFO and similar tools use their own signed drivers to avoid this, but that requires expensive code signing certificates.
+
 ## Troubleshooting
 
 | Problem | Solution |
 |---|---|
-| All CPU temps show N/A | Norton (or other AV) is blocking the kernel driver. Disable "Product Tamper Protection" in Norton settings |
+| CPU temps / fans show N/A | Norton is blocking the kernel driver — see [Norton Antivirus Users](#norton-antivirus-users) above |
 | No tray icon visible | Click the `^` overflow arrow in the taskbar — Windows hides new tray icons by default |
 | App silently closes on launch | Check `pc-monitor.log` in the app directory for errors |
-| Fans show 0 RPM | GPU fans at 0 RPM is normal (zero-fan mode below ~50C). Chassis fans at 0 RPM means they're not connected to those headers |
+| Fans show 0 RPM | GPU fans at 0 RPM is normal (zero-fan mode below ~50°C). Chassis fans at 0 RPM means they're not connected to those headers |
 
 ## License
 
