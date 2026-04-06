@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+
+# PyInstaller
+*.spec
+
+# App runtime files
+pc-monitor.log
+pc-monitor.log.*
+state.json
+state.json.tmp
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Dev/test files
+dump_sensors.py
+copy-pasted-text.txt

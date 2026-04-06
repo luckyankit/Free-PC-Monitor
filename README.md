@@ -1,0 +1,92 @@
+# Free PC Monitor
+
+A lightweight Windows system tray application that displays real-time hardware temperatures, fan speeds, and system stats. Built with Python and [LibreHardwareMonitor](https://github.com/LibreHardwareMonitor/LibreHardwareMonitor).
+
+![Screenshot](screenshot.png)
+
+## Features
+
+- System tray icon showing CPU package temperature (color-coded)
+- Two-column popup panel with grouped sensor data
+- Dark theme UI
+- Draggable popup with position memory
+- Auto-refresh every second
+- Per-drive storage stats
+
+### Sensors Displayed
+
+| Category | Readings |
+|---|---|
+| **CPU** | Package temp, Core Max temp, Bus Speed (BCLK), Total load, Power |
+| **GPU** | Core temp, Hot Spot temp, Memory Junction temp, Core load, Fan RPMs, VRAM usage, Power |
+| **RAM** | Usage %, Used/Available GB |
+| **Fans / Voltages** | CPU Fan, AIO Pump, Chassis fans RPMs, Motherboard temp |
+| **Storage** | Per-drive temperature, used space %, data read/written |
+
+## Download
+
+Grab the latest `PCMonitor.exe` from the [Releases](../../releases) page. No installation needed — just run it.
+
+## Requirements
+
+- Windows 10/11
+- **Administrator privileges** (required for hardware sensor access)
+- If using Norton antivirus: disable "Product Tamper Protection" in Norton settings, as it blocks the kernel driver used to read CPU temperatures and fan speeds
+
+## Usage
+
+### Option A: Run the exe (recommended)
+
+1. Download `PCMonitor.exe` from [Releases](../../releases)
+2. Double-click to run — accept the UAC admin prompt
+3. Look for the temperature icon in the system tray (bottom-right, may be in the overflow `^` area)
+4. Left-click the icon to open the sensor panel
+5. Right-click for Refresh / Quit options
+6. Drag the title bar to reposition the popup — position is saved between runs
+
+### Option B: Run from source
+
+1. Install Python 3.10+
+2. Clone this repo and install dependencies:
+   ```
+   git clone https://github.com/AcierDev/Free-PC-Monitor.git
+   cd Free-PC-Monitor
+   pip install -r requirements.txt
+   ```
+3. Run as administrator:
+   ```
+   python main.py
+   ```
+
+### Auto-start on boot
+
+```
+python install_autostart.py          # enable
+python install_autostart.py --remove # disable
+```
+
+### Build the exe yourself
+
+```
+pip install pyinstaller
+python build.py
+```
+
+The exe will be at `dist/PCMonitor.exe`.
+
+## How It Works
+
+The app uses [LibreHardwareMonitor](https://github.com/LibreHardwareMonitor/LibreHardwareMonitor)'s .NET library (loaded via [pythonnet](https://github.com/pythonnet/pythonnet)) to read hardware sensors. This requires a kernel driver for CPU MSR registers and SuperIO chip access, which is why admin privileges are needed.
+
+## Troubleshooting
+
+| Problem | Solution |
+|---|---|
+| All CPU temps show N/A | Norton (or other AV) is blocking the kernel driver. Disable "Product Tamper Protection" in Norton settings |
+| No tray icon visible | Click the `^` overflow arrow in the taskbar — Windows hides new tray icons by default |
+| App silently closes on launch | Check `pc-monitor.log` in the app directory for errors |
+| Fans show 0 RPM | GPU fans at 0 RPM is normal (zero-fan mode below ~50C). Chassis fans at 0 RPM means they're not connected to those headers |
+
+## License
+
+MIT
