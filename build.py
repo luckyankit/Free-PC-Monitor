@@ -10,7 +10,7 @@ cmd = [
     "--onefile",
     "--windowed",
     "--name", "PCMonitor",
-    "--icon", "NONE",
+    "--icon", "icon.ico",
     "--add-data", "lib;lib",
     "--uac-admin",
     "main.py",

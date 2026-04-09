@@ -10,7 +10,7 @@ import tkinter as tk
 import config
 
 # Log with rotation (max 1MB, keep 2 backups)
-LOG_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "pc-monitor.log")
+LOG_FILE = os.path.join(config._APPDATA_DIR, "pc-monitor.log")
 _handler = RotatingFileHandler(LOG_FILE, maxBytes=1024 * 1024, backupCount=2)
 _handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(message)s"))
 logging.root.addHandler(_handler)
@@ -49,8 +49,8 @@ def main():
         run_as_admin()
         return
 
-    # Change to script directory (important when launched via UAC)
-    os.chdir(os.path.dirname(os.path.abspath(__file__)))
+    # Set working directory to APPDATA so LHM's kernel driver (.sys) lands there
+    os.chdir(config._APPDATA_DIR)
     log.info("Working directory: %s", os.getcwd())
 
     # Initialize sensor engine (needs admin for hardware access)
@@ -81,13 +81,10 @@ def main():
     def on_tray_click():
         root.after(0, popup.toggle)
 
-    def on_refresh():
-        engine.refresh()
-
     def on_quit():
         root.after(0, root.quit)
 
-    tray = TrayIcon(engine, on_click=on_tray_click, on_quit=on_quit, on_refresh=on_refresh)
+    tray = TrayIcon(engine, on_click=on_tray_click, on_quit=on_quit)
     icon = tray.create()
 
     tray_thread = threading.Thread(target=icon.run, daemon=True)

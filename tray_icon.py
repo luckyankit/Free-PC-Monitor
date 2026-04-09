@@ -54,11 +54,10 @@ def create_temp_icon(temp_value):
 
 
 class TrayIcon:
-    def __init__(self, engine: SensorEngine, on_click, on_quit, on_refresh):
+    def __init__(self, engine: SensorEngine, on_click, on_quit):
         self._engine = engine
         self._on_click = on_click
         self._on_quit = on_quit
-        self._on_refresh = on_refresh
         self._icon = None
 
     def create(self):
@@ -67,7 +66,6 @@ class TrayIcon:
 
         menu = pystray.Menu(
             pystray.MenuItem("Open Monitor", self._on_left_click, default=True),
-            pystray.MenuItem("Refresh Now", self._on_refresh_click),
             pystray.Menu.SEPARATOR,
             pystray.MenuItem("Quit", self._on_quit_click),
         )
@@ -98,9 +96,6 @@ class TrayIcon:
 
     def _on_left_click(self, icon, item):
         self._on_click()
-
-    def _on_refresh_click(self, icon, item):
-        self._on_refresh()
 
     def _on_quit_click(self, icon, item):
         self._on_quit()

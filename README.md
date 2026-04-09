@@ -9,7 +9,7 @@ A lightweight Windows system tray application that displays real-time hardware t
 - System tray icon showing CPU package temperature (color-coded)
 - Two-column popup panel with grouped sensor data
 - Dark theme UI
-- Draggable popup with position memory
+- Draggable popup with position memory (persists across restarts)
 - Auto-refresh every second
 - Per-drive storage stats
 
@@ -43,8 +43,8 @@ Grab the latest `PCMonitor.exe` from the [Releases](../../releases) page. No ins
 2. Double-click to run — accept the UAC admin prompt
 3. Look for the temperature icon in the system tray (bottom-right, may be in the overflow `^` area)
 4. Left-click the icon to open the sensor panel
-5. Right-click for Refresh / Quit options
-6. Drag the title bar to reposition the popup — position is saved between runs
+5. Right-click for Quit option
+6. Drag the title bar to reposition the popup — position is saved to `%APPDATA%\PCMonitor` and remembered across restarts
 
 ### Option B: Run from source
 
@@ -101,7 +101,7 @@ You only need to disable it briefly during startup. The driver stays loaded in m
 |---|---|
 | CPU temps / fans show N/A | Norton is blocking the kernel driver — see [Norton Antivirus Users](#norton-antivirus-users) above |
 | No tray icon visible | Click the `^` overflow arrow in the taskbar — Windows hides new tray icons by default |
-| App silently closes on launch | Check `pc-monitor.log` in the app directory for errors |
+| App silently closes on launch | Check `pc-monitor.log` in `%APPDATA%\PCMonitor` for errors |
 | Fans show 0 RPM | GPU fans at 0 RPM is normal (zero-fan mode below ~50°C). Chassis fans at 0 RPM means they're not connected to those headers |
 
 ## License

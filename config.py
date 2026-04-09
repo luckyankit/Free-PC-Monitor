@@ -1,11 +1,21 @@
 import os
+import sys
 import json
 
 # Paths
+if getattr(sys, 'frozen', False):
+    _BUNDLE_DIR = sys._MEIPASS
+else:
+    _BUNDLE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
-LIB_DIR = os.path.join(APP_DIR, "lib")
+LIB_DIR = os.path.join(_BUNDLE_DIR, "lib")
 LHM_DLL = os.path.join(LIB_DIR, "LibreHardwareMonitorLib.dll")
-STATE_FILE = os.path.join(APP_DIR, "state.json")
+
+# User state in %APPDATA%\PCMonitor — persistent across restarts
+_APPDATA_DIR = os.path.join(os.environ.get("APPDATA", os.path.expanduser("~")), "PCMonitor")
+os.makedirs(_APPDATA_DIR, exist_ok=True)
+STATE_FILE = os.path.join(_APPDATA_DIR, "state.json")
 
 
 def load_state():

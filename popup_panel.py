@@ -33,9 +33,31 @@ class PopupPanel:
         self._labels = {}
         self._drag_x = 0
         self._drag_y = 0
+        self._refresh_id = None
 
     def set_root(self, root: tk.Tk):
         self._root = root
+        # Pre-build the popup offscreen so first click is instant
+        self._root.after(500, self._prebuild)
+
+    def _prebuild(self):
+        if self._window is not None:
+            return
+        # Wait until sensor engine has real data before building
+        data = self._engine.get_data()
+        has_data = any(r.value is not None for readings in data.values() for r in readings)
+        if not has_data:
+            self._root.after(1000, self._prebuild)
+            return
+        self._labels = {}
+        self._window = tk.Toplevel(self._root)
+        self._window.overrideredirect(True)
+        self._window.configure(bg=config.BG_COLOR)
+        # Render offscreen so all pixels are pre-painted, then hide
+        self._window.geometry("+{0}+{1}".format(-9999, -9999))
+        self._build_ui()
+        self._window.update()
+        self._window.withdraw()
 
     def toggle(self):
         if self._visible:
@@ -44,24 +66,40 @@ class PopupPanel:
             self.show()
 
     def show(self):
-        if self._window is not None:
-            self._window.destroy()
+        if self._window is None:
+            # Prebuild hasn't completed yet — do a synchronous build
+            self._labels = {}
+            self._window = tk.Toplevel(self._root)
+            self._window.withdraw()
+            self._window.overrideredirect(True)
+            self._window.configure(bg=config.BG_COLOR)
+            self._build_ui()
+            self._window.update_idletasks()
 
-        self._labels = {}
-        self._window = tk.Toplevel(self._root)
-        self._window.overrideredirect(True)
-        self._window.attributes("-topmost", True)
-        self._window.configure(bg=config.BG_COLOR)
-
-        self._build_ui()
+        self._cancel_refresh()
+        self._refresh_values()
+        self._position_window()
         self._window.update_idletasks()
+        self._window.deiconify()
+        self._window.lift()
+        self._window.attributes("-topmost", True)
+        self._visible = True
+        self._schedule_refresh()
 
+    def _cancel_refresh(self):
+        if self._refresh_id is not None:
+            try:
+                self._window.after_cancel(self._refresh_id)
+            except (tk.TclError, ValueError):
+                pass
+            self._refresh_id = None
+
+    def _position_window(self):
         state = config.load_state()
         saved_x = state.get("popup_x")
         saved_y = state.get("popup_y")
 
         if saved_x is not None and saved_y is not None:
-            # Clamp to current work area in case monitors changed
             work_area = get_work_area()
             if work_area:
                 saved_x = max(work_area[0], min(saved_x, work_area[2] - 100))
@@ -81,24 +119,19 @@ class PopupPanel:
                 y = screen_h - win_h - 50
 
         self._window.geometry(f"+{x}+{y}")
-        self._visible = True
-        self._schedule_refresh()
 
     def hide(self):
-        if self._window is not None:
+        self._cancel_refresh()
+        if self._window is not None and self._visible:
             try:
-                x = self._window.winfo_x()
-                y = self._window.winfo_y()
                 state = config.load_state()
-                state["popup_x"] = x
-                state["popup_y"] = y
+                state["popup_x"] = self._window.winfo_x()
+                state["popup_y"] = self._window.winfo_y()
                 config.save_state(state)
             except Exception:
                 pass
-            self._window.destroy()
-            self._window = None
+            self._window.withdraw()
         self._visible = False
-        self._labels = {}
 
     @property
     def is_visible(self):
@@ -264,9 +297,9 @@ class PopupPanel:
             return
         self._refresh_values()
         try:
-            self._window.after(config.POLL_INTERVAL_MS, self._schedule_refresh)
+            self._refresh_id = self._window.after(config.POLL_INTERVAL_MS, self._schedule_refresh)
         except tk.TclError:
-            pass
+            self._refresh_id = None
 
     def _refresh_values(self):
         data = self._engine.get_data()
